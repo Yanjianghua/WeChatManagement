@@ -1,0 +1,41 @@
+<?php
+
+/**
+ * Created by PhpStorm.
+ * User: yanjianghua
+ * Date: 2017/4/5
+ * Time: 23:51
+ */
+class Weixin
+{
+    const PROVIDER_SECRET = 'aZmUUssnhV9ZjPjgAhodCc_478pahsdMRqt1HdANNetXgS5eyoGNA-fP-NkHgQMn';
+    const PROVIDER_ACCESS_TOKEN_URL = 'https://qyapi.weixin.qq.com/cgi-bin/service/get_provider_token';
+    const LOGIN_INFO_URL = 'https://qyapi.weixin.qq.com/cgi-bin/service/get_login_info?access_token=';
+    const SUITE_ACCESS_TOKEN_URL = 'https://qyapi.weixin.qq.com/cgi-bin/service/get_suite_token';
+    const PRE_AUTH_CODE_URL = 'https://qyapi.weixin.qq.com/cgi-bin/service/get_pre_auth_code?suite_access_token=';
+    const GET_USER_INFO_URL = 'https://qyapi.weixin.qq.com/cgi-bin/user/getuserinfo?';
+    const GET_USER_LIST_URL = 'https://qyapi.weixin.qq.com/cgi-bin/user/list?';
+    const GET_DEPARTMENT_LIST_URL = 'https://qyapi.weixin.qq.com/cgi-bin/department/list?access_token=';
+    const AUTH_WEIXIN_LOGIN_URL = 'https://qy.weixin.qq.com/cgi-bin/loginpage?suite_id=%s&pre_auth_code=%s&redirect_uri=%s&state=1';
+    const PERMANENT_CODE_URL = 'https://qyapi.weixin.qq.com/cgi-bin/service/get_permanent_code?suite_access_token=';
+    const CORP_ACCESSETN_TOKEN_URL = 'https://qyapi.weixin.qq.com/cgi-bin/service/get_corp_token?suite_access_token=';
+    const ACCESS_URL = 'https://api.weixin.qq.com/cgi-bin/token';
+    const SEND_URL = 'https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=';
+    const AGENT_URL = 'https://qyapi.weixin.qq.com/cgi-bin/agent/list?access_token=';
+    const GET_W_USER_URL = 'https://qyapi.weixin.qq.com/cgi-bin/user/get?access_token=';
+    const GET_WECHAT_INFO = "https://api.weixin.qq.com/cgi-bin/user/info";
+    const GET_USER_CREATE = "https://qyapi.weixin.qq.com/cgi-bin/user/create?access_token=";
+    const GET_USER_UPDATE = "https://qyapi.weixin.qq.com/cgi-bin/user/update?access_token=";
+    const GET_USER_DELETE = "https://qyapi.weixin.qq.com/cgi-bin/user/delete?access_token=";
+    const GET_DEPARTMENT_DELETE = "https://qyapi.weixin.qq.com/cgi-bin/department/delete?access_token=";
+    const GET_DEPARTMENT_CREATE = "https://qyapi.weixin.qq.com/cgi-bin/department/create?access_token=";
+    const GET_DEPARTMENT_UPDATE = "https://qyapi.weixin.qq.com/cgi-bin/department/update?access_token=";
+    const GET_CORP_TOKEN = "https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=";
+    const NONCESTR = 'HealthCloud';
+    const WECHAT_LANGUAGE = '&lang=zh_CN';
+
+    const BIND_REQUESTING = 0;
+    const BIND_REFUSED = 1;
+    const BIND_AGREED = 2;
+    const REMOVE_BIND = 3;
+}

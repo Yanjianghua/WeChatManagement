@@ -1,0 +1,25 @@
+<?php
+defined('BASEPATH') OR exit('No direct script access allowed');
+class Admin_ApiBinding extends MY_Controller {
+
+	public function __construct() {
+		parent::__construct();
+		$this->loadService("MyMenu","WxSystem");
+		$this->loadModel("MyMenuUrl");
+	}
+
+
+    /**
+     * 加载主页面
+     */
+    public function index() {
+        $WxSystem = $this->WxSystem_service->get_list();
+        $this->assign("WxSystem", $WxSystem['rows']);
+        $this->assign("HTTP_HOST", $_SERVER['HTTP_HOST']);
+
+        var_dump($_SERVER);die;
+
+        $this->view("admin/binding/index");
+    }
+
+}

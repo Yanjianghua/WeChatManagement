@@ -1,0 +1,183 @@
+<?php
+class WxSystem_service extends MY_Service {
+	const MSG_USERNAME_NOT_NULL = "用户名不能为空";
+	const MSG_USERNAME_IS_EXISTS = "用户名已存在";
+
+	public function __construct() {
+		parent::__construct();
+		$this->loadModel("MyUser","WxSystem","MySysLog");
+	}
+
+	public function addoredit($options = array()) {
+		$optionsKeys = array(
+			"wxs_id",
+			"user_id",
+			"wxs_name",
+			"wxs_token",
+			"wxs_app_id",
+			"wxs_app_secret",
+			"wxs_access_token",
+			"wxs_expire_access",
+			"status"
+		);
+		extract(formatOptions($options, $optionsKeys));
+
+		$data = array();
+
+		if (optionExists($wxs_id)) {
+			$data['wxs_id'] = $wxs_id;
+		}
+
+		if (optionExists($wxs_name)) {
+			$data['wxs_name'] = $wxs_name;
+		}
+
+		if (optionExists($wxs_token)) {
+			$data['wxs_token'] = $wxs_token;
+		}else{
+            $data['wxs_token'] = generate_password();
+        }
+
+		if (optionExists($wxs_app_id)) {
+			$data['wxs_app_id'] = $wxs_app_id;
+		}
+
+		if (optionExists($wxs_app_secret)) {
+			$data['wxs_app_secret'] = $wxs_app_secret;
+		}
+
+		if (optionExists($wxs_access_token)) {
+			$data['wxs_access_token'] = $wxs_access_token;
+		}
+
+		if (optionExists($wxs_expire_access)) {
+			$data['wxs_expire_access'] = $wxs_expire_access;
+		}
+		if (optionExists($status)) {
+			if ($status) {
+				$data['status'] = WxSystem_model::STATUS_YES;
+			} else {
+				$data['status'] = WxSystem_model::STATUS_NO;
+			}
+		}
+        $data['user_id'] = $this->login_user['user_id'];
+        $data['addtime'] = time();
+		if ($wxs_id) {
+			$success = $this->WxSystem_model->where("wxs_id", $wxs_id)->set($data)->update();
+		} else {
+			if (empty($wxs_name)) {
+				return wrrong_msg(self::MSG_USERNAME_NOT_NULL);
+			}
+			$success = $this->WxSystem_model->set($data)->insert();
+		}
+
+		if (!$success) {
+			return wrrong_msg(MSG_SERVICE_BUSY);
+		}
+		if($wxs_id){
+            $this->MySysLog_model->set(array(
+                "user_name"=>$this->login_user['user_name'],
+                "action"=>"IP地址: ".ip(),
+                "class_name"=>"Admin_User",
+                "class_obj"=>"edit",
+                "result"=>"后台用户".$wxs_name."信息修改成功",
+                "op_time"=>time()
+            ))->insert();
+            return success_msg(MSG_EDIT_SUCCESS);
+        }else{
+            $this->MySysLog_model->set(array(
+                "user_name"=>$this->login_user['user_name'],
+                "action"=>"IP地址: ".ip(),
+                "class_name"=>"Admin_User",
+                "class_obj"=>"add",
+                "result"=>"后台用户".$wxs_name."信息添加成功",
+                "op_time"=>time()
+            ))->insert();
+            return success_msg(MSG_ADD_SUCCESS);
+        }
+	}
+
+	/**
+	 * 获取列表
+	 * @param unknown $options	数组
+	 * @return multitype:NULL string
+	 */
+	public function get_list($options = array()) {
+		$optionsKeys = array(
+			"wxs_id",
+			"user_id",
+            "wxs_name",
+			"status",
+			"rows",
+			"page"
+		);
+		extract(formatOptions($options, $optionsKeys));
+
+		$where = array();
+		$result = array();
+
+		if (optionExists($user_id)) {
+			$where['user_id'] = $user_id;
+		}
+		if (optionExists($wxs_id)) {
+			$where['wxs_id'] = $wxs_id;
+		}
+		//是否启用
+		if (optionExists($status)) {
+			$where['status'] = $status;
+		}
+		//username模糊查询
+		if (optionExists($wxs_name)) {
+			$where['wxs_name like'] = "%{$wxs_name}%";
+		}
+
+		//分页
+		if (optionExists($rows) && optionExists($page)) {
+			$result['total'] = $this->WxSystem_model->where($where)->count();
+			$page = max($page, 1);
+			$offset = ($page - 1) * $rows;
+			$this->WxSystem_model->limit($rows, $offset);
+		}
+		//获取列表
+		$list = $this->WxSystem_model->where($where)->get_list();
+		//获取用户组
+		foreach ($list as $k => $v) {
+			$role = $this->MyUser_model->where("user_id",$v['user_id'])->get_list();
+			if (!empty($role)) {
+				$list[$k]['role'] = $role;
+				$list[$k]['rolename'] = $role[0]['real_name'];
+				$list[$k]['logintime'] = date("Y-m-d H:i:s",$role[0]['login_time']);
+			}
+		}
+		$result['rows'] = $list;
+		return $result;
+	}
+
+	/**
+	 *	删除内容
+	 */
+	public function delete($options = array()) {
+		$optionsKeys = array("wxs_id");
+		extract(formatOptions($options, $optionsKeys));
+		if (!$wxs_id) {
+			return wrrong_msg(MSG_INVALID_ARGUMENTS);
+		}
+
+		$success = $this->WxSystem_model->where("wxs_id", $wxs_id)->delete();
+		if (!$success) {
+			return wrrong_msg(MSG_SERVICE_BUSY);
+		}
+        $this->MySysLog_model->set(array(
+            "user_name"=>$this->login_user['user_name'],
+            "action"=>"IP地址: ".ip(),
+            "class_name"=>"Admin_User",
+            "class_obj"=>"del",
+            "result"=>"后台用户ID为".$wxs_id."删除成功",
+            "op_time"=>time()
+        ))->insert();
+		return success_msg(MSG_DELETE_SUCCESS);
+
+	}
+
+}
+?>

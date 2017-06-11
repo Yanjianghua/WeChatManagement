@@ -1,0 +1,14 @@
+<?php
+defined('BASEPATH') OR exit('No direct script access allowed');
+class Layout_m extends MY_Controller {
+
+	public function __construct() {
+		parent::__construct();
+		$this->loadService("");
+	}
+
+	public function index() {
+		$this->view(config_item("style") . '/m/layout/index');
+	}
+
+}

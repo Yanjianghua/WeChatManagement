@@ -1,0 +1,84 @@
+<?php
+defined('BASEPATH') OR exit('No direct script access allowed');
+class Admin_WxMenu extends MY_Controller {
+
+	public function __construct() {
+		parent::__construct();
+		$this->loadService("WxSystem","WxMenu");
+		$this->loadModel("WxMenu");
+	}
+
+
+    /**
+     * 加载主页面
+     */
+    public function index() {
+        $WxMenu = $this->WxMenu_service->get_list();
+        $this->assign("WxMenu", $WxMenu);
+
+//var_dump( $WxMenu);die;
+        $this->view("admin/wxmenu/index");
+    }
+
+    /**
+     * 修改
+     */
+    public function edit() {
+        $id = $this->input->get('id');
+        $input = $this->input->post(NULL);
+        if (!empty($input)) {
+            $success = $this->WxMenu_service->addoredit($input);
+            if($success['success']){
+                alert($success['msg'],"/Admin_WxMenu/index");
+            }else{
+                alert($success['msg']);
+            }
+        }
+        $wxs= $this->WxMenu_model->where('pid',0)->get_list();
+        $this->assign("WxMenuPid", $wxs);
+        $wxs= $this->WxMenu_model->where('id',$id)->get_item();
+        $this->assign("WxMenu", $wxs);
+        $this->view("admin/wxmenu/edit");
+    }
+
+    /**
+     * 添加
+     */
+    public function add() {
+        $input = $this->input->post(NULL);
+        if (!empty($input)) {
+            $success = $this->WxMenu_service->addoredit($input);
+            if($success['success']){
+                alert($success['msg'],"/Admin_WxMenu/index");
+            }else{
+                alert($success['msg']);
+            }
+
+        }
+        $wxs= $this->WxMenu_model->where('pid',0)->get_list();
+        $this->assign("WxMenuPid", $wxs);
+        $this->view("admin/wxmenu/add");
+    }
+
+    /**
+     * 删除
+     */
+    public function del() {
+        $input = $this->input->get(NULL);
+        $success = $this->WxMenu_service->delete($input);
+        alert($success['msg']);
+    }
+
+    /**
+     * 生成自定义菜单
+     */
+    public function make() {
+        $input = $this->input->get(NULL);
+        $input['status'] = TRUE;
+        $success = $this->WxMenu_service->make($input);
+        var_dump($success);die;
+
+//        alert($success['msg']);
+    }
+
+}

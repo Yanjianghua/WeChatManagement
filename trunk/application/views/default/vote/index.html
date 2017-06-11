@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=uft-8">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta charset="uft-8">
+    <title>{{$vote['title']}}</title>
+    <meta name="description" content="{{$vote['title']}}">
+    <link rel="stylesheet" href="/statics/vote/index{{$moban}}/touch.css">
+    <script type="text/javascript" src="/statics/vote/index{{$moban}}/jquery-2.1.3.min.js"></script>
+
+    <script type="text/javascript" src="/statics/vote/index{{$moban}}/app.js"></script>
+    <script type="text/javascript" src="/statics/vote/index{{$moban}}/jquery.masonry.min.js"></script>
+    <style>
+        .slider{display:none;}
+        .focus span{width:5px;height:5px;margin-left:5px;border-radius:50%;background:#CDCDCD;font-size:0}
+        .focus span.current{background:red;}
+    </style>
+
+</head>
+<body>
+<header>
+    <img src="{{$vote['picurl']}}" alt="{{$vote['title']}}" width="640px" height="450px"/>
+    <img src="{{$vote['picurl']}}" alt="广告招租" width="640px" height="80px"/>
+
+    <div class="m_head clearfix">
+        <div class="num_box">
+                {{if $BM}}<a href="/vote/enroll?token={{$vote['token']}}&id={{$vote['id']}}" class="join_us">我要报名</a>{{/if}}
+            <ul class="num_box_ul">
+                <li>
+                    <span class="text">已报名</span>
+                    <span>{{$vote_ycount}}</span>
+                </li>
+                <li>
+                    <span class="text">投票人次</span>
+                    <span>{{$vote_tcount}}</span>
+                </li>
+                <li>
+                    <span class="text">浏览量</span>
+                    <span>{{$xncheck}}</span>
+                </li>
+            </ul>
+            <img src="/statics/vote/index{{$moban}}/mw_004.jpg" />
+        </div>
+        <div class="search">
+            <form action="/vote/search?token={{$vote['token']}}&id={{$vote['id']}}" id="search_form" method="post" accept-charset="utf-8">
+                <input type="hidden" name="id" value="{{$vote['id']}}" />
+                <input type="hidden" name="token" value="{{$vote['token']}}" />
+                <div class="search_con">
+                    <div class="btn"><input type="submit" name="seachid" id="searchBtn" value="搜索"></div>
+                    <div class="text_box"><input type="search" id="searchText" value="" name="keyword" placeholder="请输入选手姓名或编号" autocomplete="off"></div>
+                </div>
+            </form>
+        </div>    </div>
+</header>
+
+<section class="content" id="get_info" data-rid="503" data-sort="" data-kw="" data-page="">
+    <div class="text_a clearfix" id="sort">
+        <a href="/vote/index?token={{$vote['token']}}&id={{$vote['id']}}" class="active">最新参赛</a>
+        <a href="/vote/top?token={{$vote['token']}}&id={{$vote['id']}}" >投票排行</a>
+    </div>
+    <div class="blank20"></div>
+    <div id="pageCon" class="match_page masonry" style="padding-bottom: 50px">
+        <ul class="list_box masonry clearfix" style="position: relative;">
+            {{if !empty($vote_items)}}
+            {{foreach $vote_items['rows'] as $value}}
+                <li class="picCon">
+                    <div>
+                        <i class="number">{{$value['id']}}号</i>
+                        <a href="/vote/details?token={{$vote['token']}}&id={{$vote['id']}}&iid={{$value['id']}}" class="img">
+
+                            <img src="{{if $value['startpicurl']}}{{$value['startpicurl']}}{{else}}/statics/media/image/user.png{{/if}}" alt="" >
+
+                        </a>
+                        <div class="clearfix">
+                            <p>
+                                {{$value['name']}}<br/>
+                                {{$value['dcount']+$value['vcount']}}票
+                            </p>
+                            <a href="/vote/ajax_dcount?token={{$vote['token']}}&id={{$vote['id']}}&iid={{$value['id']}}" class="vote" data-itid="{{$value['id']}}" data-vote_num="{{$value['id']}}" data-rule_id="{{$value['id']}}">投票</a>
+                        </div>
+                    </div>
+                </li>
+            {{/foreach}}
+            {{/if}}
+        </ul>
+
+    </div>
+
+    <div class="pagination pagination-centered">
+        <ul>
+            <li class="prev {{if $page==0}}disabled{{/if}}">
+                <a href="/vote/index?token={{$vote['token']}}&id={{$vote['id']}}&page={{max($page-1,0)}}" target="_blank"> ← <span class="hidden-480">Prev</span></a>
+            </li>
+            {{for $o=1 to $vote_items['total']/10}}
+            <li class="{{if $page+1==$o}}active{{/if}}"><a href="/vote/index?token={{$vote['token']}}&id={{$vote['id']}}&page={{$o-1}}" target="_blank">{{$o}}</a></li>
+            {{/for}}
+            <li class="next {{if ($page+1)==$page}}disabled{{/if}}">
+                <a href="/vote/index?token={{$vote['token']}}&id={{$vote['id']}}&page={{min($page+1,0)}}" target="_blank"><span class="hidden-480">Next</span> → </a>
+            </li>
+        </ul>
+    </div>
+</section>
+<img class="bg" src="/statics/vote/index{{$moban}}/mw_005.jpg" />
+
+<section class="rules">
+    <div class="text">
+        {{if !empty($vote['shumat'])}}
+            <div class="prize">{{$vote['shuma']}}</div>
+            <div class="neirong">{{$vote['shumat']}}</div>
+        {{/if}}
+    </div>
+    <div class="text">
+        {{if !empty($vote['shumbt'])}}
+            <div class="prize">{{$vote['shumb']}}</div>
+            <div class="neirong">{{$vote['shumbt']}}</div>
+        {{/if}}
+    </div>
+    <div class="text">
+        {{if !empty($vote['shumct'])}}
+            <div class="prize">{{$vote['shumc']}}</div>
+            <div class="neirong">{{$vote['shumbt']}}</div>
+        {{/if}}
+    </div>
+    <div style=" height:60px; width:100%; display:block;"></div>
+
+</section>
+
+<link rel="stylesheet" type="text/css" href="/statics/vote/index2/daohang.css">
+
+<div class="bot_main">
+    <ul>
+        <li class="ico_1"><span class="ico"><img src="/statics/vote//index2/i1.png" /></span><span class="txt">首页</span></li>
+        <li class="ico_2"><span class="ico"><img src="/statics/vote//index2/i3.png" /></span><span class="txt">排名</span></li>
+        <li class="ico_3"><span class="ico"><img src="/statics/vote//index2/i11.png" /></span><span class="txt"><notempty name='ishavezp' >我的<else/>报名</notempty></span></li>
+        <li class="ico_4"><span class="ico"><img src="/statics/vote/index2/i4.png" /></span><span class="txt">关注我们</span></li>
+    </ul>
+</div>
+
+
+<script src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+<script type="text/javascript">
+    wx.config({
+        debug: false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+        appId: '{{$signPackage["appId"]}}', // 必填，公众号的唯一标识
+        timestamp: "{{$signPackage['timestamp']}}", // 必填，生成签名的时间戳
+        nonceStr: '{{$signPackage["nonceStr"]}}', // 必填，生成签名的随机串
+        signature: '{{$signPackage["signature"]}}',// 必填，签名，见附录1
+        jsApiList: ['onMenuShareTimeline', 'onMenuShareAppMessage'] // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
+    });
+
+    wx.ready(function(){
+        wx.error(function(res){
+            console.log(res);
+        });
+        //朋友圈
+        wx.onMenuShareTimeline({
+            title: "{{$vote['title']}}", // 分享标题
+            link: "{{$server_url}}/vote/index?token={{$vote['token']}}&id={{$vote['id']}}", // 分享链接
+            imgUrl: "{{$vote['wappicurl']}}", // 分享图标
+            success: function () {
+                // 用户确认分享后执行的回调函数
+            },
+            cancel: function () {
+                // 用户取消分享后执行的回调函数
+            }
+        });
+
+        //分享给朋友
+        wx.onMenuShareAppMessage({
+            title: "{{$vote['title']}}", // 分享标题
+            desc: "{{$vote['fxms']}}", // 分享描述
+            link: "{{$server_url}}/vote/index?token={{$vote['token']}}&id={{$vote['id']}}", // 分享链接
+            imgUrl: "{{$vote['wappicurl']}}", // 分享图标
+            type: '', // 分享类型,music、video或link，不填默认为link
+            dataUrl: '', // 如果type是music或video，则要提供数据链接，默认为空
+            success: function () {
+                // 用户确认分享后执行的回调函数
+            },
+            cancel: function () {
+                // 用户取消分享后执行的回调函数
+            }
+        });
+    });
+</script>
+
+<script type="text/javascript">
+    $(function($){
+        $("#search_form").submit(function(){
+            var keyword = $("#searchText").val();
+            if(keyword.length == 0){alert('请输入选手姓名或编号');return false;}
+        });
+    });
+    $(function(){
+        $("#toupiaook").on('click',function(){
+            window.location.href = "/vote/index?token={{$vote['token']}}&id={{$vote['id']}}";
+        });
+    });
+    $('.ico_1').on('click', function(){
+        location.href = "/vote/index?token={{$vote['token']}}&id={{$vote['id']}}";
+    });
+    $('.ico_2').on('click', function(){
+        location.href = "/vote/top?token={{$vote['token']}}&id={{$vote['id']}}";
+    });
+    $('.ico_3').on('click', function(){
+        location.href = "/vote/enroll?token={{$vote['token']}}&id={{$vote['id']}}";
+    });
+    $('.ico_4').on('click', function(){
+        location.href = "/vote/top?token={{$vote['token']}}&id={{$vote['id']}}";
+    });
+    $.ajax({
+        url: "/vote/ajax_pv?token={{$vote['token']}}&id={{$vote['id']}}",
+        method: 'post',
+        dataType: 'json',
+        data: {},
+        success:function () {
+        }
+    });
+
+</script>
+</body>
+</html>

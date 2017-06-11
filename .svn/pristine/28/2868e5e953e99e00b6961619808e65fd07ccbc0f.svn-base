@@ -1,0 +1,149 @@
+<?php
+defined('BASEPATH') OR exit('No direct script access allowed');
+class Api extends MY_Controller {
+
+	public function __construct() {
+		parent::__construct();
+		$this->loadService("WxSystem");
+        $this->loadModel("WxSystem");
+        $this->load->library('WXBizMsgCrypt');
+	}
+
+    private function checkSignature()
+    {
+        $signature = $_GET['signature'];
+        $timestamp = $_GET['timestamp'];
+        $nonce = $_GET['nonce'];
+        $echoStr = $_GET['echostr'];
+        $token = 'xQUwDMDg7uVeNek1uz';
+        $sEchoStr = '';
+
+        $system = $this->WxSystem_model->where('wxs_token',$token)->get_item();
+
+        $wxcpt = $this->WXBizMsgCrypt($system['wxs_token'],$system['wxs_app_secret'],$system['wxs_app_id']);
+//        $wxcpt = new \Weixin\WXBizMsgCrypt($system['wxs_token'],$system['wxs_app_secret'],$system['wxs_app_id']);
+        $errCode = $wxcpt->VerifyURL($signature, $timestamp, $nonce, $echoStr, $sEchoStr);
+
+        if($errCode == 0)
+        {
+            header('content-type:text');
+            echo $sEchoStr;
+            exit;
+        }else{
+        }
+    }
+
+    private function getMsg($postData){
+        $signature = $_GET['msg_signature'];
+        $timestamp = $_GET['timestamp'];
+        $nonce = $_GET['nonce'];
+        $token = 'HealthCloud';
+        $sMsg = '';
+        $postObj = simplexml_load_string($postData, 'SimpleXMLElement', LIBXML_NOCDATA);
+
+        $wxcpt = new Weixin\WXBizMsgCrypt($token,WeixinDef::ENCONDINGAESKEY,$postObj->ToUserName);
+        $errorCode = $wxcpt->DecryptMsg($signature,$timestamp,$nonce,$postData,$sMsg);
+        if($errorCode == 0)
+        {
+            Logger::debug('sMsg: %s',$sMsg);
+            $data = simplexml_load_string($sMsg,'SimpleXMLElement', LIBXML_NOCDATA);
+            Logger::debug('data: %s',$data);
+            //判断是否存在这个用户
+            $user = Users::findFirstByuserid($data->FromUserName);
+            $result = json_decode($data->ScanCodeInfo->ScanResult);
+            if($user and strpos($data->ScanCodeInfo->ScanResult,"Client_id")){
+                $su = WeixinUtil::httpGet(WeixinDef::APP_URL.'/api/test/node/'.$result->Client_id.'/'.$data->FromUserName);
+//                Logger::debug('node: %s',$su);
+//                //消息推送
+//                $user_id = $data->FromUserName;
+//                $message = WeixinUtil::getMessageText((string)$user_id,0);
+//                Logger::debug('message: %s',$message);
+            }
+            return $sMsg;
+        }else{
+            Logger::debug('Error: ' . $errorCode );
+            return false;
+        }
+
+        return false;
+    }
+
+    private function _xmlToArr($xml)
+    {
+        $res = @simplexml_load_string($xml, NULL, LIBXML_NOCDATA);
+        $res = json_decode(json_encode($res), true);
+        return $res;
+    }
+
+    private function dealMsgType($param){
+        switch($param['MsgType']){
+            case 'event':
+                switch($param['Event']){
+                    case 'scancode_waitmsg':
+                        $retStr = WeixinUtil::dealScanWait($param);
+                        Logger::debug('%s',$retStr);
+                        WeixinUtil::responseMsg($param['FromUserName'],$param['ToUserName'],$retStr,$param['AgentID']);
+                        break;
+                    case 'click':
+                        return $this->forward('click/index');
+                    default :
+                        break;
+                }
+                break;
+            case 'text':
+                break;
+            default:
+                break;
+        }
+    }
+
+    public function index()
+    {
+        if(isset($_GET['echostr'])){
+            $this->checkSignature();
+        }else{
+//            $postStr = $GLOBALS["HTTP_RAW_POST_DATA"];
+//            $ret = $this->getMsg($postStr);
+//            if(!$ret)
+//            {
+//
+//            }else{
+//                $obj = $this->_xmlToArr($ret);
+//                if(isset($obj['InfoType']))
+//                {
+//                    switch($obj['InfoType']){
+//                        case 'suite_ticket' :
+//                            $memKey = MemcacheNameDef::SUITE_TICKET . $obj['SuiteId'];
+//                            $sTicket = $obj['SuiteTicket'];
+//                            $ret = PressMemcached::set($memKey,$sTicket,600);
+//                            echo 'success';
+//                            break;
+//                        case 'create_auth' :
+//                            $ret = WeixinUtil::getPermanentCode($obj['SuiteId'],$obj['AuthCode']);
+//                            //header('content-type:application/text');
+//                            echo 'success';
+//                            exit;
+//                            break;
+//                    }
+//                }elseif(isset($obj['MsgType'])){
+//                    if($obj['MsgType'] == 'event'){
+//                        $this->dealMsgType($obj);
+//                    }else{
+//                        WeixinUtil::responseMsg($obj['FromUserName'],$obj['ToUserName'],'请稍后',$obj['AgentID']);
+//                    }
+//                }
+//            }
+        }
+    }
+
+    public function authAction($suite_id = 0)
+    {
+        $suite_id = WeixinDef::SUITE_ID;
+        $pre_auth_code = WeixinUtil::getPreAuthCode($suite_id);
+        $redictUri = urlencode(WeixinDef::APP_URL.'/index/success_auth/' . $suite_id) ;
+        $url = sprintf(WeixinDef::AUTH_WEIXIN_LOGIN_URL,$suite_id,$pre_auth_code,$redictUri,1);
+        $this->view->url = $url;
+    }
+
+
+}

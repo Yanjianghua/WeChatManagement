@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=uft-8">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta charset="uft-8">
+    <title>我是{{$vote_items['name']}} 编号:{{$vote_items['id']}},正在参加{{$vote['title']}},快来帮我投票吧!</title>
+    <meta name="description" content="{iMicms:$vote['title']}">
+    <link rel="stylesheet" href="/statics/vote/index{{$moban}}/touch.css">
+    <script type="text/javascript" src="/statics/vote/index{{$moban}}/jquery-2.1.3.min.js"></script>
+
+    <script type="text/javascript" src="/statics/vote/index{{$moban}}/app.js"></script>
+    <script type="text/javascript" src="/statics/vote/index{{$moban}}/jquery.masonry.min.js"></script>
+    <style>
+        .slider{display:none;}
+        .focus span{width:5px;height:5px;margin-left:5px;border-radius:50%;background:#CDCDCD;font-size:0}
+        .focus span.current{background:red;}
+
+        #mcover {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            z-index: 20000;
+        }
+        #mcover img {
+            position: fixed;
+            right: 18px;
+            top: 5px;
+            width: 260px!important;
+            height: 180px!important;
+            z-index: 20001;
+        }
+
+
+        .guide-close:after{content:'';position:absolute;left:50%;bottom:18px;width:20px;height:20px;background:url("/statics/ico-close.png") no-repeat;-webkit-background-size:100% auto;-moz-background-size:100% auto;background-size:100% auto;opacity:.55}
+    </style>
+
+    <style>
+        /*音乐图标*/
+        #audio_btn {
+            position: absolute;
+            right: 10px;
+            top: 18px;
+            z-index: 200;
+            display: none;
+            width: 50px;
+            height: 50px;
+            background-repeat: no-repeat;
+            cursor: pointer;
+        }
+        .loading_background {
+            background-image: url(/statics/media/image/music_loading.gif);
+            background-size: 30px 30px;
+            opacity: 0.5;
+            background-position: center center;
+        }
+        .loading_yinfu {
+            position: absolute;
+            left: 10px;
+            top: 10px;
+            width: 30px;
+            height: 30px;
+            background-image: url(/statics/media/image/music_yinfu.png);
+            background-repeat: no-repeat;
+            background-position: center center;
+        }
+        .play_yinfu {
+            background-image: url(/statics/media/image/music.gif);
+            background-repeat: no-repeat;
+            background-position: center center;
+            background-size: 60px 60px;
+        }
+        .rotate {
+            position: absolute;
+            left: 10px;
+            top: 10px;
+            width: 30px;
+            height: 30px;
+            background-size: 100% 100%;
+            background-image: url(/statics/media/image/music_off.png);
+            -webkit-animation: rotating 1.2s linear infinite;
+            -moz-animation: rotating 1.2s linear infinite;
+            -o-animation: rotating 1.2s linear infinite;
+            animation: rotating 1.2s linear infinite;
+        }
+        @-webkit-keyframes rotating {
+            from {
+                -webkit-transform: rotate(0deg);
+            }
+            to {
+                -webkit-transform: rotate(360deg);
+            }
+        }
+        @keyframes rotating {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        @-moz-keyframes rotating {
+            from {
+                -moz-transform: rotate(0deg);
+            }
+            to {
+                -moz-transform: rotate(360deg);
+            }
+        }
+        .off {
+            background-image: url(/statics/media/image/music_no.png);
+            background-size: 30px 30px;
+            background-repeat: no-repeat;
+            background-position: center center;
+        }
+    </style>
+
+    <script>
+        $(function() {
+            var audio = $('#media');
+            audio[0].play();
+            $("#audio_btn").bind('click', function() {
+                $(this).hasClass("off") ? ($(this).addClass("play_yinfu").removeClass("off"), $("#yinfu").addClass("rotate"), $("#media")[0].play()) : ($(this).addClass("off").removeClass("play_yinfu"), $("#yinfu").removeClass("rotate"), $("#media")[0].pause());
+            });
+        });
+        var scroll = document.getElementById("scroll");
+        var scroll1 = document.getElementById("scroll1");
+        var scroll2 = document.getElementById("scroll2");
+        scroll2.innerHTML=document.getElementById("scroll1").innerHTML;
+        function Marquee(){
+            if(scroll.scrollLeft-scroll2.offsetWidth>=0){
+                scroll.scrollLeft-=scroll1.offsetWidth;
+            }
+            else{
+                scroll.scrollLeft++;
+            }
+        }
+        var myvar=setInterval(Marquee,30);
+        scroll.onmouseout=function (){myvar=setInterval(Marquee,30);}
+        scroll.onmouseover=function(){clearInterval(myvar);}
+    </script>
+
+</head>
+<body>
+<div class="video_exist play_yinfu" id="audio_btn" style="display: block;">
+    <div id="yinfu" class="rotate"></div>
+    <audio preload="auto" autoplay id="media" src="{{$vote['music']}}" loop></audio>
+</div>
+
+
+<header>
+    <div class="m_head clearfix">
+        <notempty name="ggduotu">
+            <img src="{{$vote['picurl']}}" alt="{{$vote['title']}}" width="640px" height="450px"/>
+            <img src="{{$vote['picurl']}}" alt="广告招租" width="640px" height="80px"/>
+        </notempty>
+
+
+
+    </div>
+</header>
+
+<section class="content" id="get_info" data-rid="503" data-sort="" data-kw="" data-page="">
+    <div class="detial_box">
+        <span class="closed close_detial_box" data-refer="1">&nbsp;</span>
+        <p class="num clearfix">
+            <span class="fl" id="baby_info" itid_id="{{$vote_items['id']}}" data-rule_id="503" data-vote_num="{{$vote['id']}}">{{if $vote_items['status']==0}}审核中{{elseif $vote_items['status']==2}}已锁定{{/if}}&nbsp;{{$vote_items['id']}}号&nbsp;{{$vote_items['name']}}</span>
+            <span class="fr">排名：{{$ranking}}&nbsp;&nbsp;&nbsp;&nbsp; 票数：{{$vote_items['dcount'] + $vote_items['vcount']}}</span>
+        </p>
+        <div class="blank10"></div>
+        <p>作品简介：{{$vote_items['intro']}}</p>
+        <div class="blank10"></div>
+        {{if !empty($vote_items['startpicurl'])}}
+            <img src="{{$vote_items['startpicurl']}}" alt="">
+        {{/if}}
+        {{if !empty($vote_items['startpicurl2'])}}
+            <img src="{{$vote_items['startpicurl2']}}" alt="">
+        {{/if}}
+        {{if !empty($vote_items['startpicurl3'])}}
+            <img src="{{$vote_items['startpicurl3']}}" alt="">
+        {{/if}}
+        {{if !empty($vote_items['startpicurl4'])}}
+            <img src="{{$vote_items['startpicurl4']}}" alt="">
+        {{/if}}
+        {{if !empty($vote_items['startpicurl5'])}}
+            <img src="{{$vote_items['startpicurl5']}}" alt="">
+        {{/if}}
+
+    </div>
+    <div class="blank10"></div>
+    <div id="mcover" class="guide-close" onClick="$(this).hide()"  >
+        <!--<img src="/statics/guide.png" />-->
+    </div>
+    <div class="abtn_box">
+        {{if $vote_items['status']==1}}
+            <a href="/vote/ajax_dcount?token={{$vote['token']}}&id={{$vote['id']}}&iid={{$vote_items['id']}}" class="a_btn " id="" data-itid="">我要投票</a>
+        {{/if}}
+        <a href="javascript:void(0)" onclick="$('#mcover').show()" class="a_btn" >帮TA拉票</a>
+        {{if $a}}
+            <a href="/vote/signup?token={{$vote['token']}}&id={{$vote['id']}}))}" class="a_btn canjia">我也来参加</a>
+        {{/if}}
+        <a href="/vote/index?token={{$vote['token']}}&id={{$vote['id']}}" class="a_btn look">点击查看更多</a>
+    </div>
+</section>
+<section class="rules">
+    <div class="text">
+        {{if !empty($vote['shumat'])}}
+        <div class="prize">{{$vote['shuma']}}</div>
+        <div class="neirong">{{$vote['shumat']}}</div>
+        {{/if}}
+    </div>
+    <div class="text">
+        {{if !empty($vote['shumbt'])}}
+        <div class="prize">{{$vote['shumb']}}</div>
+        <div class="neirong">{{$vote['shumbt']}}</div>
+        {{/if}}
+    </div>
+    <div class="text">
+        {{if !empty($vote['shumct'])}}
+        <div class="prize">{{$vote['shumc']}}</div>
+        <div class="neirong">{{$vote['shumbt']}}</div>
+        {{/if}}
+    </div>
+    <div style=" height:25px; width:100%; display:block;"></div>
+</section>
+<div class="bottom_khdxz" style="display:none">
+    <a href="" class="footer-logo deyi-logo"><br></a>
+    <a href="" class="footer-logo wft-logo"><br></a>
+    <span class="bottom_khdxz_close"><i>&nbsp;</i></span>
+</div>
+<script type="text/javascript">
+    $(function(){
+        $(".close_detial_box").on('click',function(){
+            window.location.href = "/vote/index?token={{$vote['token']}}&id={{$vote['id']}}";
+        });
+    });
+</script>
+
+<link rel="stylesheet" type="text/css" href="/statics/vote/index2/daohang.css">
+
+<div class="bot_main">
+    <ul>
+        <li class="ico_1"><span class="ico"><img src="/statics/vote//index2/i1.png" /></span><span class="txt">首页</span></li>
+        <li class="ico_2"><span class="ico"><img src="/statics/vote//index2/i3.png" /></span><span class="txt">排名</span></li>
+        <li class="ico_3"><span class="ico"><img src="/statics/vote//index2/i11.png" /></span><span class="txt"><notempty name='ishavezp' >我的<else/>报名</notempty></span></li>
+        <if condition="$user['tpjl']==1 && $user['tpjlnum'] gt 0 && $user['gldzpid'] neq 0" >
+            <li class="ico_4"><span class="ico"><img src="/statics/vote/index2/i4.png" /></span><span class="txt">免费抽奖</span></li>
+            <else/>
+            <li class="ico_4"><span class="ico"><img src="/statics/vote/index2/i4.png" /></span><span class="txt">{iMicms:$user.dbdhm}</span></li>
+        </if>
+    </ul>
+</div>
+
+
+<script type="text/javascript">
+    $(function(){
+        $("#toupiaook").on('click',function(){
+            window.location.href = "{iMicms::U('Vote/detail',array('token'=>$token,'id'=>$id,'zid'=>$zpinfo['id']))}";
+        });
+        $("#toupiaook2").on('click',function(){
+            window.location.href = "{iMicms::U('Vote/detail',array('token'=>$token,'id'=>$id,'zid'=>$zpinfo['id']))}";
+        });
+    });
+
+    $('.ico_1').on('click', function(){
+        location.href = "/vote/index?token={{$vote['token']}}&id={{$vote['id']}}";
+    });
+    $('.ico_2').on('click', function(){
+        location.href = "/vote/top?token={{$vote['token']}}&id={{$vote['id']}}";
+    });
+    $('.ico_3').on('click', function(){
+        location.href = "/vote/enroll?token={{$vote['token']}}&id={{$vote['id']}}";
+    });
+    $('.ico_4').on('click', function(){
+        location.href = "/vote/top?token={{$vote['token']}}&id={{$vote['id']}}";
+    });
+    $.ajax({
+        url: "/vote/ajax_pv?token={{$vote['token']}}&id={{$vote['id']}}",
+        method: 'post',
+        dataType: 'json',
+        data: {},
+        success:function () {
+        }
+    });
+
+</script>
+<script src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+<script type="text/javascript">
+    wx.config({
+        debug: false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+        appId: '{{$signPackage["appId"]}}', // 必填，公众号的唯一标识
+        timestamp: "{{$signPackage['timestamp']}}", // 必填，生成签名的时间戳
+        nonceStr: '{{$signPackage["nonceStr"]}}', // 必填，生成签名的随机串
+        signature: '{{$signPackage["signature"]}}',// 必填，签名，见附录1
+        jsApiList: ['onMenuShareTimeline', 'onMenuShareAppMessage'] // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
+    });
+
+    wx.ready(function(){
+        wx.error(function(res){
+            console.log(res);
+        });
+        //朋友圈
+        wx.onMenuShareTimeline({
+            title: "{{$vote['title']}}", // 分享标题
+            link: "{{$server_url}}/vote/index?token={{$vote['token']}}&id={{$vote['id']}}", // 分享链接
+            imgUrl: "{{$vote['wappicurl']}}", // 分享图标
+            success: function () {
+                // 用户确认分享后执行的回调函数
+            },
+            cancel: function () {
+                // 用户取消分享后执行的回调函数
+            }
+        });
+
+        //分享给朋友
+        wx.onMenuShareAppMessage({
+            title: "{{$vote['title']}}", // 分享标题
+            desc: "{{$vote['fxms']}}", // 分享描述
+            link: "/vote/index?token={{$vote['token']}}&id={{$vote['id']}}", // 分享链接
+            imgUrl: "{{$vote['wappicurl']}}", // 分享图标
+            type: '', // 分享类型,music、video或link，不填默认为link
+            dataUrl: '', // 如果type是music或video，则要提供数据链接，默认为空
+            success: function () {
+                // 用户确认分享后执行的回调函数
+            },
+            cancel: function () {
+                // 用户取消分享后执行的回调函数
+            }
+        });
+    });
+</script>
+
+</body>
+</html>
